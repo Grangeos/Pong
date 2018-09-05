@@ -1,22 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import Pong from "./Pong";
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 class App extends Component {
   render() {
     return (
-      <section className="pong">
-        <span className="leftBar">
-        </span>
-        <span className="center">
-        </span>
-        <span className="rightBar">
-        </span>
-        <span className="ball">
-        </span>
-        <span className="score">
-          5  2
-        </span>
-
-      </section>
+      <Router>
+        <Fragment>
+          <Pong/>
+        </Fragment>
+      </Router>
     );
   }
 }
