@@ -6,8 +6,8 @@ class Pong extends Component {
   render() {
     return (
       <section className="pong">
-        <Paddle upArrow="a" downArrow="q"/>
-        <Paddle upArrow="p" downArrow="m"/>
+        <Paddle className="left" upArrow="a" downArrow="q"/>
+        <Paddle className="right" upArrow="p" downArrow="m"/>
         <Ball/>
         <span className="center">
         </span>

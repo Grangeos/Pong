@@ -6,12 +6,24 @@
   background-color: black;
   display: flex;
   justify-content: space-between;
+  overflow: hidden;
   .paddle{
+    position: absolute;
     background-color: white;
     height: 17.5vh;
-    margin: auto 2vw;
     width: 1vw;
+    transform: translateY(-50%);
+    &.right{
+      right: 0;
+      top: 0%;
+    }
+    &.left{
+      left: 0;
+      bottom: 0;
+    }
   }
+
+
   .center{
     position:absolute;
     width: 0.09vw;
@@ -30,7 +42,6 @@
   }
   .score{
     position: absolute;
-    background-color: black;
     color: white;
     left: 50%;
     transform: translateX(-50%);
