@@ -6,17 +6,20 @@
   background-color: black;
   display: flex;
   justify-content: space-between;
-  .leftBar, .rightBar{
+  .paddle{
     background-color: white;
     height: 17.5vh;
     margin: auto 2vw;
     width: 1vw;
   }
   .center{
+    position:absolute;
     width: 0.09vw;
     height: 100vh;
     background-color: white;
     opacity: 0.5;
+    left: 50%;
+    transform: translateX(-50%);
   }
   .ball{
     position: absolute;
