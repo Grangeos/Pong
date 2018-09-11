@@ -6,9 +6,7 @@ class App extends Component {
   render() {
     return (
       <Router>
-        <Fragment>
-          <Pong/>
-        </Fragment>
+        <Pong/>
       </Router>
     );
   }
