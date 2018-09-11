@@ -43,22 +43,21 @@ class Paddle extends Component {
           return
 
         }
-        this.setState({position: position - 0.5} )
+        this.setState({position: position - 0.7} )
       } else if (mooving === "down") {
         if (position >= 100) {
           this.setState({ mooving: null, position: 100 })
           return
 
         }
-        this.setState({position: position + 0.5} )
+        this.setState({position: position + 0.7} )
       }
     }, 10);
   }
 
   render() {
     return (
-      <span className={cx("paddle", this.props.className)} style={{ top: this.state.position+"%"}}>
-      </span>
+      <rect className={cx("paddle", this.props.className)} style={{ y: `calc(${this.state.position}% - 80px)`}} />
     );
   }
 }
