@@ -23,7 +23,35 @@ class Ball extends Component {
         this.setState({
           position: Vector.add(position, trajectoire)
         })
-      }, 9);
+      }, 100);
+  }
+
+  calculRaquette(){
+    const leftPaddle = document.getElementsByClassname("paddle left").first().getBoundingClientRect()
+    const leftPaddleCoord = [
+      [
+        leftPaddle.left+leftPaddle.width,
+        leftPaddle.top
+      ],
+      [
+        leftPaddle.left+leftPaddle.width,
+        leftPaddle.top+rightPaddle.height
+      ]
+
+    ]
+    const rightPaddle = document.getElementsByClassname("paddle right").first().getBoundingClientRect()
+    const rightPaddleCoord = [
+      [
+        rightPaddle.left,
+        rightPaddle.top
+      ],
+      [
+        rightPaddle.left,
+        rightPaddle.top+rightPaddle.height
+      ]
+
+    ]
+
   }
 
   render() {
