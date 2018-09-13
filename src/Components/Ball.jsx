@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import Vector from "../js/Vector";
+import Vector, { Segment } from "../js/Vector";
+
 
 class Ball extends Component {
   state = {
@@ -19,38 +20,39 @@ class Ball extends Component {
 
       setInterval(() => {
         const { trajectoire, position } = this.state;
-
+        this.calculRaquette();
         this.setState({
           position: Vector.add(position, trajectoire)
         })
-      }, 100);
+      }, 20);
   }
 
   calculRaquette(){
-    const leftPaddle = document.getElementsByClassname("paddle left").first().getBoundingClientRect()
-    const leftPaddleCoord = [
-      [
-        leftPaddle.left+leftPaddle.width,
-        leftPaddle.top
-      ],
-      [
-        leftPaddle.left+leftPaddle.width,
-        leftPaddle.top+rightPaddle.height
-      ]
+    var ballSegment = new Segment(this.state.position, this.state.trajectoire);
 
-    ]
-    const rightPaddle = document.getElementsByClassname("paddle right").first().getBoundingClientRect()
-    const rightPaddleCoord = [
-      [
-        rightPaddle.left,
-        rightPaddle.top
-      ],
-      [
-        rightPaddle.left,
-        rightPaddle.top+rightPaddle.height
-      ]
+    const leftPaddle = document.getElementsByClassName("paddle left").item(0).getBoundingClientRect();
+    var leftPaddlePosition = Vector.fromCoordinates(leftPaddle.right, leftPaddle.top );
+    var leftPaddleVector = new Vector(leftPaddle.height, 90);
+    var leftPaddleSegment = new Segment(leftPaddlePosition, leftPaddleVector);
 
-    ]
+    var leftPaddleIntersection = Segment.intersect(leftPaddleSegment, ballSegment);
+
+    const rightPaddle = document.getElementsByClassName("paddle right").item(0).getBoundingClientRect();
+    var rightPaddlePosition = Vector.fromCoordinates(rightPaddle.left, rightPaddle.top);
+    var rightPaddleVector = new Vector(rightPaddle.height, 90);
+    var rightPaddleSegment = new Segment(rightPaddlePosition, rightPaddleVector);
+
+    var rightPaddleIntersection = Segment.intersect(rightPaddleSegment, ballSegment);
+
+    if (rightPaddleIntersection) {
+      console.log(rightPaddleIntersection);
+      var newVector = new Vector(ballSegment - rightPaddleSegment );
+      newVector = this.setState.trajectoire;
+      console.log(this.state.trajectoire);
+
+
+    }
+
 
   }
 
