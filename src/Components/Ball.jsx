@@ -20,15 +20,12 @@ class Ball extends Component {
 
       setInterval(() => {
         const { trajectoire, position } = this.state;
-        this.calculRaquette();
-        this.setState({
-          position: Vector.add(position, trajectoire)
-        })
+        this.calculRaquette(Vector.add(position, trajectoire));
       }, 20);
   }
 
-  calculRaquette(){
-    var ballSegment = new Segment(this.state.position, this.state.trajectoire);
+  calculRaquette(position){
+    var ballSegment = new Segment(position, this.state.trajectoire);
 
     const leftPaddle = document.getElementsByClassName("paddle left").item(0).getBoundingClientRect();
     var leftPaddlePosition = Vector.fromCoordinates(leftPaddle.right, leftPaddle.top );
@@ -46,13 +43,30 @@ class Ball extends Component {
 
     if (rightPaddleIntersection) {
       console.log(rightPaddleIntersection);
-      var newVector = new Vector(ballSegment - rightPaddleSegment );
-      newVector = this.setState.trajectoire;
-      console.log(this.state.trajectoire);
-
-
+      var vectorCollision = Vector.subtract(rightPaddleIntersection, position);
+      if (vectorCollision.length > 0 ){
+        this.setState({
+          position: rightPaddleIntersection
+        }, () => {
+          this.setState({
+            trajectoire: this.state.trajectoire.rotate(180),
+            position: Vector.add(
+              position,
+              Vector.subtract(
+                this.state.trajectoire,
+                vectorCollision
+              ).rotate(180)
+            )
+          })
+        })
+        return;
+      }
     }
 
+
+    this.setState({
+      position
+    })
 
   }
 
