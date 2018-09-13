@@ -21,7 +21,62 @@ class Ball extends Component {
       setInterval(() => {
         const { trajectoire, position } = this.state;
         this.calculRaquette(Vector.add(position, trajectoire));
-      }, 20);
+      }, 2);
+  }
+
+  rebond (position, segment, deviation) {
+    var ballSegment = new Segment(position, this.state.trajectoire)
+    var paddleIntersection = Segment.intersect(segment, ballSegment);
+
+    if (paddleIntersection) {
+      var vectorCollision = Vector.subtract(paddleIntersection, position);
+      const vectorNextPosition = Vector.add(position, this.state.trajectoire);
+
+      const vectorA = Vector.subtract(
+          Vector.fromCoordinates(vectorNextPosition.coordinates.x, paddleIntersection.coordinates.y),
+          paddleIntersection
+      )
+
+      const vectorB = Vector.subtract(
+        vectorNextPosition,
+        Vector.fromCoordinates(vectorNextPosition.coordinates.x, paddleIntersection.coordinates.y)
+      );
+
+      let newTrajectoire = Vector.subtract(vectorB, vectorA);
+
+      if (deviation) {
+        const impactPoint = paddleIntersection.coordinates.y - segment.position.coordinates.y;
+
+        newTrajectoire = deviation(newTrajectoire, impactPoint, segment.vector.length)
+      }
+
+      const newPosition = Vector.add(paddleIntersection, newTrajectoire);
+
+      if (vectorCollision.length > 0 ){
+        this.setState({
+          position: paddleIntersection
+        }, () => {
+          this.setState({
+            trajectoire: new Vector(this.state.trajectoire.length, newTrajectoire.angle),
+            position: newPosition
+          })
+        })
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  paddleDeviation (trajectoire, impactPoint, size) {console.log(trajectoire.angle)
+    const deviationRatio = 40 / size;
+    let deviation = 0-(20 - (deviationRatio * impactPoint));
+
+    if (trajectoire.angle < -90 || trajectoire.angle > 90) {
+      deviation = 0-deviation;
+    }
+
+    return trajectoire.rotate(deviation);
   }
 
   calculRaquette(position){
@@ -32,37 +87,18 @@ class Ball extends Component {
     var leftPaddleVector = new Vector(leftPaddle.height, 90);
     var leftPaddleSegment = new Segment(leftPaddlePosition, leftPaddleVector);
 
-    var leftPaddleIntersection = Segment.intersect(leftPaddleSegment, ballSegment);
+    if (this.rebond(position, leftPaddleSegment, this.paddleDeviation)) {
+      return null;
+    }
 
     const rightPaddle = document.getElementsByClassName("paddle right").item(0).getBoundingClientRect();
     var rightPaddlePosition = Vector.fromCoordinates(rightPaddle.left, rightPaddle.top);
     var rightPaddleVector = new Vector(rightPaddle.height, 90);
     var rightPaddleSegment = new Segment(rightPaddlePosition, rightPaddleVector);
 
-    var rightPaddleIntersection = Segment.intersect(rightPaddleSegment, ballSegment);
-
-    if (rightPaddleIntersection) {
-      console.log(rightPaddleIntersection);
-      var vectorCollision = Vector.subtract(rightPaddleIntersection, position);
-      if (vectorCollision.length > 0 ){
-        this.setState({
-          position: rightPaddleIntersection
-        }, () => {
-          this.setState({
-            trajectoire: this.state.trajectoire.rotate(180),
-            position: Vector.add(
-              position,
-              Vector.subtract(
-                this.state.trajectoire,
-                vectorCollision
-              ).rotate(180)
-            )
-          })
-        })
-        return;
-      }
+    if (this.rebond(position, rightPaddleSegment, this.paddleDeviation)) {
+      return null;
     }
-
 
     this.setState({
       position
