@@ -23,8 +23,8 @@ export class Point {
   }
 
   constructor (x, y) {
-    this[_x] = x;
-    this[_y] = y;
+    this[_x] = Math.round(x);
+    this[_y] = Math.round(y);
   }
 }
 
@@ -51,16 +51,20 @@ export class Vector {
     return this[_coordinates];
   }
 
+  get module () {
+    return Math.sqrt(Math.pow(this.coordinates.x, 2) + Math.pow(this.coordinates.y, 2))
+  }
+
   constructor (length, angle) {
-    this[_angle] = angle;
-    this[_length] = length;
+    this[_angle] = Math.round(angle * 100) / 100;
+    this[_length] = Math.abs(Math.round(length * 100) / 100);
     this[_coordinates] = new Point(
       this.length * Math.cos(this.angle * (Math.PI/180)),
       this.length * Math.sin(this.angle * (Math.PI/180))
     );
   }
 
-  rotate (angle) {
+  rotate (angle) {console.log(angle, this.angle, this.angle + angle)
     return new Vector(
       this.length,
       this.angle + angle
@@ -82,12 +86,20 @@ export class Vector {
       this.angle
   );
 
+  multiplyV = (vector) => this.coordinates.x * vector.coordinates.x + this.coordinates.y * vector.coordinates.y
+
   divide = (divisor) =>  new Vector(
       this.length / divisor,
       this.angle
   )
 
   equal = (vector) => Math.round(vector.coordinates.x) === Math.round(this.coordinates.x) && Math.round(vector.coordinates.y) === Math.round(this.coordinates.y)
+
+  normalize () {
+    const { module } = this;
+
+    return Vector.fromCoordinates(this.coordinates.x/module, this.coordinates.y/module);
+  }
 }
 
 export class Segment {
