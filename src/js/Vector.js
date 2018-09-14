@@ -23,8 +23,8 @@ export class Point {
   }
 
   constructor (x, y) {
-    this[_x] = Math.round(x);
-    this[_y] = Math.round(y);
+    this[_x] = x;
+    this[_y] = y;
   }
 }
 
@@ -56,7 +56,7 @@ export class Vector {
   }
 
   constructor (length, angle) {
-    this[_angle] = Math.round(angle * 100) / 100;
+    this[_angle] = angle;
     this[_length] = Math.abs(Math.round(length * 100) / 100);
     this[_coordinates] = new Point(
       this.length * Math.cos(this.angle * (Math.PI/180)),
@@ -64,7 +64,7 @@ export class Vector {
     );
   }
 
-  rotate (angle) {console.log(angle, this.angle, this.angle + angle)
+  rotate (angle) {
     return new Vector(
       this.length,
       this.angle + angle

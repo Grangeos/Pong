@@ -17,7 +17,7 @@ class Ball extends Component {
       setInterval(() => {
         const { trajectoire, position } = this.state;
         this.calculRaquette(Vector.add(position, trajectoire));
-      }, 2);
+      }, 1);
   }
 
   rebond (position, segment, deviation) {
@@ -38,55 +38,41 @@ class Ball extends Component {
       const vectorComplement = reflectedVectorUnit.multiply(trajectoire.length - vectorCollision.length);
 
       const newPosition = Vector.add(intersection, vectorComplement);
+
       let newTrajectoire = reflectedVectorUnit.multiply(trajectoire.length);
-/*
-      const vectorNextPosition = Vector.add(position, trajectoire);
 
-      const vectorA = Vector.subtract(
-          Vector.fromCoordinates(vectorNextPosition.coordinates.x, intersection.coordinates.y),
-          intersection
-      )
-
-      const vectorB = Vector.subtract(
-        vectorNextPosition,
-        Vector.fromCoordinates(vectorNextPosition.coordinates.x, intersection.coordinates.y)
-      );
-
-      let newTrajectoire = Vector.subtract(vectorB, vectorA);
-
-      if (deviation) {
+      if (deviation) {console.log("deviation")
         const impactPoint = intersection.coordinates.y - segment.position.coordinates.y;
 
         newTrajectoire = deviation(newTrajectoire, impactPoint, segment.vector.length)
       }
 
-      const newPosition = Vector.add(intersection, newTrajectoire);
-*/
-      if (vectorCollision.length > 0 ){
+      this.setState({
+        trajectoire: newTrajectoire,
+        position: intersection
+      }, () => {
         this.setState({
-          position: intersection
-        }, () => {
-          this.setState({
-            trajectoire: newTrajectoire,
-            position: newPosition
-          })
+          position: newPosition
         })
-        return true;
-      }
+      });
+
+      return true;
     }
 
     return false;
   }
 
-  paddleDeviation (trajectoire, impactPoint, size) {console.log(trajectoire.angle)
-    const deviationRatio = 40 / size;
-    let deviation = 0-(20 - (deviationRatio * impactPoint));
+  paddleDeviation (trajectoire, impactPoint, size) {
+    const ANGLE = 40;
+    const deviationRatio = ANGLE / size;
 
-    if (trajectoire.angle < -90 || trajectoire.angle > 90) {
-      deviation = 0-deviation;
-    }
+    const impactPointFromMiddle = (size / 2) - Math.abs(impactPoint);
 
-    return trajectoire.rotate(deviation);
+    let deviation = impactPointFromMiddle * deviationRatio;
+
+    const newTrajectoire = trajectoire.rotate(deviation)
+
+    return newTrajectoire;
   }
 
   calculRaquette(position){
@@ -110,11 +96,30 @@ class Ball extends Component {
       return null;
     }
 
+    const topWall = document.getElementsByClassName("wall top").item(0).getBoundingClientRect();
+    var topWallPosition = Vector.fromCoordinates(topWall.left, topWall.bottom);
+    var topWallVector = new Vector(topWall.width, 0);
+    var topWallSegment = new Segment(topWallPosition, topWallVector);
+
+    if (this.rebond(position, topWallSegment)) {
+      return null;
+    }
+
+    const bottomWall = document.getElementsByClassName("wall bottom").item(0).getBoundingClientRect();
+    var bottomWallPosition = Vector.fromCoordinates(bottomWall.right, bottomWall.top);
+    var bottomWallVector = new Vector(bottomWall.width, -180);
+    var bottomWallSegment = new Segment(bottomWallPosition, bottomWallVector);
+
+    if (this.rebond(position, bottomWallSegment)) {
+      return null;
+    }
+
     this.setState({
       position
     })
 
   }
+
 
   render() {
     const {position} = this.state;
