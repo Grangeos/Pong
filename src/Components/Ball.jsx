@@ -1,21 +1,17 @@
 import React, { Component } from 'react';
 import Vector, { Segment } from "../js/Vector";
 
-
 class Ball extends Component {
   state = {
     trajectoire : null,
     position : null
   }
   componentDidMount(){
-      const trajectoire = new Vector (7, 0) //Longueur 10 et 0 degrées
+      const trajectoire = new Vector (3, 0) //Longueur 10 et 0 degrées
       const boundingRect = document.getElementById("ball").getBoundingClientRect()
       const x = boundingRect.left; // vecteur position x depart
       const y = boundingRect.top; // vecteur position y depart
-      const position = new Vector(
-        Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)),
-        Math.atan2(y, x) * 180 / Math.PI
-      );
+      const position = Vector.fromCoordinates(x, y);
       this.setState({trajectoire, position});
 
       setInterval(() => {
@@ -25,39 +21,53 @@ class Ball extends Component {
   }
 
   rebond (position, segment, deviation) {
-    var ballSegment = new Segment(position, this.state.trajectoire)
-    var paddleIntersection = Segment.intersect(segment, ballSegment);
+    const { trajectoire } = this.state;
+    const ballSegment = new Segment(position, trajectoire)
+    const intersection = Segment.intersect(segment, ballSegment);
 
-    if (paddleIntersection) {
-      var vectorCollision = Vector.subtract(paddleIntersection, position);
-      const vectorNextPosition = Vector.add(position, this.state.trajectoire);
+
+    if (intersection) {
+      const vectorCollision  = Vector.subtract(intersection, position);
+
+      const segmentNormeUnit = Vector.fromCoordinates(segment.vector.coordinates.y, -segment.vector.coordinates.x).rotate(180).normalize()
+
+      const projection       = segmentNormeUnit.multiply(vectorCollision.multiplyV(segmentNormeUnit));
+
+      const reflectedVectorUnit = projection.multiply(2).add(vectorCollision).normalize();
+
+      const vectorComplement = reflectedVectorUnit.multiply(trajectoire.length - vectorCollision.length);
+
+      const newPosition = Vector.add(intersection, vectorComplement);
+      let newTrajectoire = reflectedVectorUnit.multiply(trajectoire.length);
+/*
+      const vectorNextPosition = Vector.add(position, trajectoire);
 
       const vectorA = Vector.subtract(
-          Vector.fromCoordinates(vectorNextPosition.coordinates.x, paddleIntersection.coordinates.y),
-          paddleIntersection
+          Vector.fromCoordinates(vectorNextPosition.coordinates.x, intersection.coordinates.y),
+          intersection
       )
 
       const vectorB = Vector.subtract(
         vectorNextPosition,
-        Vector.fromCoordinates(vectorNextPosition.coordinates.x, paddleIntersection.coordinates.y)
+        Vector.fromCoordinates(vectorNextPosition.coordinates.x, intersection.coordinates.y)
       );
 
       let newTrajectoire = Vector.subtract(vectorB, vectorA);
 
       if (deviation) {
-        const impactPoint = paddleIntersection.coordinates.y - segment.position.coordinates.y;
+        const impactPoint = intersection.coordinates.y - segment.position.coordinates.y;
 
         newTrajectoire = deviation(newTrajectoire, impactPoint, segment.vector.length)
       }
 
-      const newPosition = Vector.add(paddleIntersection, newTrajectoire);
-
+      const newPosition = Vector.add(intersection, newTrajectoire);
+*/
       if (vectorCollision.length > 0 ){
         this.setState({
-          position: paddleIntersection
+          position: intersection
         }, () => {
           this.setState({
-            trajectoire: new Vector(this.state.trajectoire.length, newTrajectoire.angle),
+            trajectoire: newTrajectoire,
             position: newPosition
           })
         })
@@ -80,11 +90,11 @@ class Ball extends Component {
   }
 
   calculRaquette(position){
-    var ballSegment = new Segment(position, this.state.trajectoire);
+    const ballSegment = new Segment(position, this.state.trajectoire);
 
     const leftPaddle = document.getElementsByClassName("paddle left").item(0).getBoundingClientRect();
-    var leftPaddlePosition = Vector.fromCoordinates(leftPaddle.right, leftPaddle.top );
-    var leftPaddleVector = new Vector(leftPaddle.height, 90);
+    var leftPaddlePosition = Vector.fromCoordinates(leftPaddle.right, leftPaddle.bottom );
+    var leftPaddleVector = new Vector(leftPaddle.height, -90);
     var leftPaddleSegment = new Segment(leftPaddlePosition, leftPaddleVector);
 
     if (this.rebond(position, leftPaddleSegment, this.paddleDeviation)) {
