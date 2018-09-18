@@ -5,7 +5,7 @@ export default class Score extends Component {
   render () {
     const { className, ...props} = this.props;
     return (
-      <span { ...props } className={cx("score", className)} />
+      <text { ...props } className={cx("score", className)} />
     );
   }
 }

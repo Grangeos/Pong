@@ -8,6 +8,18 @@
   display: flex;
   justify-content: space-between;
   overflow: hidden;
+  .score{
+    font-family: "Press Start 2P";
+    font-size: 90vh;
+    fill: white;
+    opacity: 0.08;
+    &.left{
+      transform: translate(-2%, 102%);
+    }
+    &.right{
+      transform: translate(50%, 102%);
+    }
+  }
   .paddle{
     width: 13px;
     height: 160px;
@@ -39,16 +51,7 @@
     y: calc(50% - 7.5px);
     // border-radius: 50%;
   }
-  .score{
-    position: absolute;
-    color: white;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: sans-serif;
-    font-size: 4em;
-    font-family: 'Press Start 2P', cursive;
 
-  }
 
   .wall {
     stroke-width: 2px;
