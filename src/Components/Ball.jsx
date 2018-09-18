@@ -4,20 +4,55 @@ import Vector, { Segment } from "../js/Vector";
 class Ball extends Component {
   state = {
     trajectoire : null,
-    position : null
+    position : null,
+    defaultPosition: null
   }
   componentDidMount(){
-      const trajectoire = new Vector (3, 0) //Longueur 10 et 0 degrées
+      this.start(true);
+  }
+
+  start (init = false) {
+    if (this._interval)
+      return;
+
+    const trajectoire = new Vector (3, [0, 180][Math.round(Math.random())]) //Longueur 10 et 0 degrées
+    const { defaultPosition } = this.state;
+
+    const newState = {
+      trajectoire
+    }
+
+    if (init) {
       const boundingRect = document.getElementById("ball").getBoundingClientRect()
       const x = boundingRect.left; // vecteur position x depart
       const y = boundingRect.top; // vecteur position y depart
       const position = Vector.fromCoordinates(x, y);
-      this.setState({trajectoire, position});
 
-      setInterval(() => {
-        const { trajectoire, position } = this.state;
-        this.calculRaquette(Vector.add(position, trajectoire));
-      }, 1);
+      newState.position = position;
+      newState.defaultPosition = position;
+    } else {
+      newState.position = defaultPosition;
+    }
+
+    this.setState(newState);
+
+
+    this._interval = setInterval(() => {
+      const { trajectoire, position } = this.state;
+      this.calculRaquette(Vector.add(position, trajectoire));
+      this.score()
+    }, 1);
+  }
+
+  stop(){
+    if (!this._interval)
+      return;
+
+    clearInterval(this._interval);
+
+    this._interval = null;
+
+    this.start();
   }
 
   rebond (position, segment, deviation) {
@@ -31,7 +66,7 @@ class Ball extends Component {
 
       const segmentNormeUnit = Vector.fromCoordinates(segment.vector.coordinates.y, -segment.vector.coordinates.x).rotate(180).normalize()
 
-      const projection       = segmentNormeUnit.multiply(vectorCollision.multiplyV(segmentNormeUnit));
+      const projection = segmentNormeUnit.multiply(vectorCollision.multiplyV(segmentNormeUnit));
 
       const reflectedVectorUnit = projection.multiply(2).add(vectorCollision).normalize();
 
@@ -41,7 +76,7 @@ class Ball extends Component {
 
       let newTrajectoire = reflectedVectorUnit.multiply(trajectoire.length);
 
-      if (deviation) {console.log("deviation")
+      if (deviation) {
         const impactPoint = intersection.coordinates.y - segment.position.coordinates.y;
 
         newTrajectoire = deviation(newTrajectoire, impactPoint, segment.vector.length)
@@ -120,7 +155,20 @@ class Ball extends Component {
 
   }
 
+  score(){
+    const fieldRect = document.getElementById("field").getBoundingClientRect()
+    const ballRect = document.getElementById("ball").getBoundingClientRect()
+    const pointRight = document.getElementById("rightScore")
+    const pointLeft = document.getElementById("leftScore")
+    const total = 10;
+    if (fieldRect.left > ballRect.right) {
+      this.stop();
+    }
+    if (fieldRect.right < ballRect.left) {
+      this.stop();
+    }
 
+  }
   render() {
     const {position} = this.state;
     const props = {};
