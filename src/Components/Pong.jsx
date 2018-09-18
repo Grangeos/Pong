@@ -15,11 +15,8 @@ class Pong extends Component {
         <line className="center" x1="50%" x2="50%" y1="0%" y2="100%" stroke="white" strokeWidth="2px" style={{opacity: 0.5}} />
         <Wall className="top" x1="0%" x2="100%" y1="0%" y2="0%" />
         <Wall className="bottom" x1="0%" x2="100%" y1="100%" y2="100%" />
-<<<<<<< Updated upstream
         <Score className="right" />
         <Score className="left" />
-=======
->>>>>>> Stashed changes
        </svg>
     );
   }
