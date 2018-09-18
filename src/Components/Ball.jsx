@@ -15,7 +15,7 @@ class Ball extends Component {
     if (this._interval)
       return;
 
-    const trajectoire = new Vector (3, [0, 180][Math.round(Math.random())]) //Longueur 10 et 0 degrées
+    const trajectoire = new Vector (4, [0, 180][Math.round(Math.random())]) //Longueur 10 et 0 degrées
     const { defaultPosition } = this.state;
 
     const newState = {
@@ -38,10 +38,14 @@ class Ball extends Component {
 
 
     this._interval = setInterval(() => {
+      if (!document.getElementById("ball")) {
+        this.stop();
+        return;
+      }
       const { trajectoire, position } = this.state;
       this.calculRaquette(Vector.add(position, trajectoire));
       this.score()
-    }, 1);
+    }, 2);
   }
 
   stop(){
@@ -155,7 +159,7 @@ class Ball extends Component {
 
   score(){
     const fieldRect = document.getElementById("field").getBoundingClientRect()
-    const ballRect = document.getElementById("ball").getBoundingClientRect()
+    const ballRect = document.getElementById("ball").getBoundingClientRect();
     const pointRight = document.getElementById("rightScore")
     const pointLeft = document.getElementById("leftScore")
 
