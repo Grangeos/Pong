@@ -3,9 +3,11 @@ import cx from "classnames";
 
 export default class Score extends Component {
   render () {
-    const { className, ...props} = this.props;
+    const { className, children, ...props} = this.props;
     return (
-      <text { ...props } className={cx("score", className)} />
+      <text { ...props } className={cx("score", className)}>
+        {children}
+      </text>
     );
   }
 }

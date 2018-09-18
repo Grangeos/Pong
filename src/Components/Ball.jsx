@@ -51,8 +51,6 @@ class Ball extends Component {
     clearInterval(this._interval);
 
     this._interval = null;
-
-    this.start();
   }
 
   rebond (position, segment, deviation) {
@@ -160,12 +158,19 @@ class Ball extends Component {
     const ballRect = document.getElementById("ball").getBoundingClientRect()
     const pointRight = document.getElementById("rightScore")
     const pointLeft = document.getElementById("leftScore")
-    const total = 10;
-    if (fieldRect.left > ballRect.right) {
+
+    if (fieldRect.left > ballRect.right) { //gauche
       this.stop();
-    }
-    if (fieldRect.right < ballRect.left) {
+
+      if (!this.props.onPoint(1)) {
+        this.start();
+      }
+    } else if (fieldRect.right < ballRect.left) { //droite
       this.stop();
+
+      if (!this.props.onPoint(0)) {
+        this.start();
+      }
     }
 
   }
