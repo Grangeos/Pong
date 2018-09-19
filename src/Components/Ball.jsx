@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Vector, { Segment } from "../js/Vector";
+import pongAudio from '../sound/audio_file.mp3';
 
 class Ball extends Component {
   state = {
@@ -8,6 +9,7 @@ class Ball extends Component {
     defaultPosition: null
   }
   componentDidMount(){
+      this.audio = new Audio(pongAudio);
       this.start(true);
   }
 
@@ -46,6 +48,11 @@ class Ball extends Component {
       this.calculRaquette(Vector.add(position, trajectoire));
       this.score()
     }, 2);
+  }
+  retry(){
+    const pointRight = document.getElementById("rightScore")
+    const pointLeft = document.getElementById("leftScore")
+
   }
 
   stop(){
@@ -101,15 +108,39 @@ class Ball extends Component {
 
   paddleDeviation (trajectoire, impactPoint, size) {
     const ANGLE = 40;
+    const ACCELERATION = 1.5;
     const deviationRatio = ANGLE / size;
+    const accelerationRatio = ACCELERATION / size;
 
     const impactPointFromMiddle = (size / 2) - Math.abs(impactPoint);
 
     let deviation = impactPointFromMiddle * deviationRatio;
+    let acceleration = Math.abs(impactPointFromMiddle * accelerationRatio);
 
-    const newTrajectoire = trajectoire.rotate(deviation)
+    const newTrajectoire = new Vector(trajectoire.length + acceleration, trajectoire.rotate(deviation).angle);
 
     return newTrajectoire;
+  }
+
+  handleRebondPaddle (position, paddle, paddlePosition, angle) {
+    var paddleVector = new Vector(paddle.height, angle);
+    var paddleSegment = new Segment(paddlePosition, paddleVector);
+
+    if (this.rebond(position, paddleSegment, this.paddleDeviation)) {
+      this.audio.currentTime = 0.6;
+      this.audio.play();
+
+      return true;
+    }
+
+    return false;
+  }
+
+  handleRebondWall (position, wall, wallPosition, angle) {
+    var wallVector = new Vector(wall.width, angle);
+    var wallSegment = new Segment(wallPosition, wallVector);
+
+    return this.rebond(position, wallSegment);
   }
 
   calculRaquette(position){
@@ -117,38 +148,31 @@ class Ball extends Component {
 
     const leftPaddle = document.getElementsByClassName("paddle left").item(0).getBoundingClientRect();
     var leftPaddlePosition = Vector.fromCoordinates(leftPaddle.right, leftPaddle.bottom );
-    var leftPaddleVector = new Vector(leftPaddle.height, -90);
-    var leftPaddleSegment = new Segment(leftPaddlePosition, leftPaddleVector);
 
-    if (this.rebond(position, leftPaddleSegment, this.paddleDeviation)) {
-      return null;
+    if (this.handleRebondPaddle(position, leftPaddle, leftPaddlePosition, -90)) {
+      return;
     }
 
     const rightPaddle = document.getElementsByClassName("paddle right").item(0).getBoundingClientRect();
     var rightPaddlePosition = Vector.fromCoordinates(rightPaddle.left, rightPaddle.top);
-    var rightPaddleVector = new Vector(rightPaddle.height, 90);
-    var rightPaddleSegment = new Segment(rightPaddlePosition, rightPaddleVector);
 
-    if (this.rebond(position, rightPaddleSegment, this.paddleDeviation)) {
-      return null;
+    if (this.handleRebondPaddle(position, rightPaddle, rightPaddlePosition, 90)) {
+      return;
     }
 
     const topWall = document.getElementsByClassName("wall top").item(0).getBoundingClientRect();
     var topWallPosition = Vector.fromCoordinates(topWall.left, topWall.bottom);
-    var topWallVector = new Vector(topWall.width, 0);
-    var topWallSegment = new Segment(topWallPosition, topWallVector);
 
-    if (this.rebond(position, topWallSegment)) {
-      return null;
+    if (this.handleRebondWall(position, topWall, topWallPosition, 0)) {
+      return;
     }
 
     const bottomWall = document.getElementsByClassName("wall bottom").item(0).getBoundingClientRect();
     var bottomWallPosition = Vector.fromCoordinates(bottomWall.right, bottomWall.top);
-    var bottomWallVector = new Vector(bottomWall.width, -180);
-    var bottomWallSegment = new Segment(bottomWallPosition, bottomWallVector);
 
-    if (this.rebond(position, bottomWallSegment)) {
-      return null;
+
+    if (this.handleRebondWall(position, bottomWall, bottomWallPosition, -180)) {
+      return;
     }
 
     this.setState({

@@ -10,8 +10,11 @@
     margin: 0;
     padding-top: 10vh;
     text-align: center;
-    font-size: 3em;
+    font-size: 4em;
     flex-basis: 10%;
+    >span{
+      font-size: 3em;
+    }
   }
   .buttonWrapper{
     width: 100%;

@@ -133,9 +133,9 @@ export class Segment {
     const ABIntersect = C.add(CD.multiply(m));
     const CDIntersect = A.add(AB.multiply(k));
 
-    if (!Vector.equal(ABIntersect, CDIntersect)) { // On vérifie le calcul
+    /**if (!Vector.equal(ABIntersect, CDIntersect)) { // On vérifie le calcul
       throw new Error("Something is wrong.")
-    }
+    }**/
 
     return ABIntersect;
   }
