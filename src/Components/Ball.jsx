@@ -1,27 +1,31 @@
 import React, { Component } from 'react';
 import Vector, { Segment } from "../js/Vector";
-import pongAudio from '../sound/audio_file.mp3';
+import pongAudio from '../sound/audio_file.wav';
 
 class Ball extends Component {
   state = {
     trajectoire : null,
     position : null,
-    defaultPosition: null
+    defaultPosition: null,
+    stopped: true
   }
   componentDidMount(){
       this.audio = new Audio(pongAudio);
       this.start(true);
   }
 
-  start (init = false) {
-    if (this._interval)
-      return;
+  componentWillReceiveProps ({ frame }) {
+    if (frame !== null && this.props.frame !== frame)
+      this.moveBall();
+  }
 
-    const trajectoire = new Vector (4, [0, 180][Math.round(Math.random())]) //Longueur 10 et 0 degrées
+  start (init = false) {
+    const trajectoire = new Vector (15, [0, 180][Math.round(Math.random())]) //Longueur 10 et 0 degrées
     const { defaultPosition } = this.state;
 
     const newState = {
-      trajectoire
+      trajectoire,
+      stopped: false
     }
 
     if (init) {
@@ -37,36 +41,21 @@ class Ball extends Component {
     }
 
     this.setState(newState);
-
-
-    this._interval = setInterval(() => {
-      if (!document.getElementById("ball")) {
-        this.stop();
-        return;
-      }
-      const { trajectoire, position } = this.state;
-      this.calculRaquette(Vector.add(position, trajectoire));
-      this.score()
-    }, 2);
-  }
-  retry(){
-    const pointRight = document.getElementById("rightScore")
-    const pointLeft = document.getElementById("leftScore")
-
   }
 
-  stop(){
-    if (!this._interval)
+  moveBall () {
+    if (!document.getElementById("ball")) {
       return;
+    }
 
-    clearInterval(this._interval);
-
-    this._interval = null;
+    this.calculRaquette();
+    this.score()
   }
 
   rebond (position, segment, deviation) {
     const { trajectoire } = this.state;
-    const ballSegment = new Segment(position, trajectoire)
+    const ballSegment = new Segment(position, trajectoire);
+
     const intersection = Segment.intersect(segment, ballSegment);
 
 
@@ -143,8 +132,10 @@ class Ball extends Component {
     return this.rebond(position, wallSegment);
   }
 
-  calculRaquette(position){
-    const ballSegment = new Segment(position, this.state.trajectoire);
+  calculRaquette(){
+    const { position: p, trajectoire } = this.state;
+    const position = Vector.add(p, trajectoire)
+    const ballSegment = new Segment(position, trajectoire);
 
     const leftPaddle = document.getElementsByClassName("paddle left").item(0).getBoundingClientRect();
     var leftPaddlePosition = Vector.fromCoordinates(leftPaddle.right, leftPaddle.bottom );
@@ -188,14 +179,10 @@ class Ball extends Component {
     const pointLeft = document.getElementById("leftScore")
 
     if (fieldRect.left > ballRect.right) { //gauche
-      this.stop();
-
       if (!this.props.onPoint(1)) {
         this.start();
       }
     } else if (fieldRect.right < ballRect.left) { //droite
-      this.stop();
-
       if (!this.props.onPoint(0)) {
         this.start();
       }
@@ -204,16 +191,20 @@ class Ball extends Component {
   }
   render() {
     const {position} = this.state;
-    const props = {};
+    const {frame} = this.props;
+    const elmtProps = {};
+
+    if (frame === null)
+      return null;
 
     if (position) {
-      props.style = {
+      elmtProps.style = {
         y: position.coordinates.y,
         x: position.coordinates.x
       }
     }
     return (
-      <rect id="ball" className="ball" {...props} stroke="white" fill="white" />
+      <rect id="ball" className="ball" {...elmtProps} stroke="white" fill="white" />
     );
   }
 }
