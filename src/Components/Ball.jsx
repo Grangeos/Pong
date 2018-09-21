@@ -11,12 +11,17 @@ class Ball extends Component {
   }
   componentDidMount(){
       this.audio = new Audio(pongAudio);
-      this.start(true);
   }
 
   componentWillReceiveProps ({ frame }) {
-    if (frame !== null && this.props.frame !== frame)
-      this.moveBall();
+    const { stopped } = this.state;
+    if (frame !== null && this.props.frame !== frame) {
+      if (stopped) {
+        this.start(true);
+      } else {
+        this.moveBall();
+      }
+    }
   }
 
   start (init = false) {
@@ -97,7 +102,7 @@ class Ball extends Component {
 
   paddleDeviation (trajectoire, impactPoint, size) {
     const ANGLE = 40;
-    const ACCELERATION = 1.5;
+    const ACCELERATION = 3.5;
     const deviationRatio = ANGLE / size;
     const accelerationRatio = ACCELERATION / size;
 
@@ -193,9 +198,6 @@ class Ball extends Component {
     const {position} = this.state;
     const {frame} = this.props;
     const elmtProps = {};
-
-    if (frame === null)
-      return null;
 
     if (position) {
       elmtProps.style = {
