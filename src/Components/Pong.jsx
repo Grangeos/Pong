@@ -5,30 +5,33 @@ import Paddle from "./Paddle";
 import Wall from "./Wall";
 import Score from "./Score";
 
+const START_DELAY = 3;
+
 class Pong extends Component {
   state = {
     score: [0, 0],
     overlayVisible: false,
-    frame: 0,
-    stopped: false
+    frame: null,
+    stopped: false,
+    timer: START_DELAY,
   }
   componentDidMount () {
     this.start();
   }
 
-  componentDidUpdate (prevProps, { frame}) {
-    if (this.state.frame !== frame)
+  componentDidUpdate (prevProps, { frame, timer }) {
+    if (this.state.frame !== frame || timer != this.state.timer)
       this.start()
   }
 
   render() {
-    const { score, overlayVisible, frame } = this.state;
+    const { score, overlayVisible, frame, timer } = this.state;
 
     return (
       <Fragment>
         <div className={"overlay " + (overlayVisible ? 'isVisible' : '')}>
 
-        <p>GG PGM</p>
+        <p>Bien Jouer</p>
         <p>{score[0]}/{score[1]}</p>
         <div className="buttonWrapper">
           <button onClick={this.retry}>Rejouer</button>
@@ -40,11 +43,12 @@ class Pong extends Component {
           <Paddle frame={frame} className="left" upArrow="a" downArrow="q"/>
           <Paddle frame={frame} className="right" upArrow="p" downArrow="m"/>
           <Ball frame={frame} onPoint={this.onPoint} stop={this.stop}/>
-          <line className="center" x1="50%" x2="50%" y1="0%" y2="100%" stroke-dasharray="30"   stroke="white" strokeWidth="4px" style={{opacity: 0.5}} />
+          <line className="center" x1="50%" x2="50%" y1="0%" y2="100%" strokeDasharray="30"   stroke="white" strokeWidth="4px" style={{opacity: 0.5}} />
           <Wall className="top" x1="0%" x2="100%" y1="0%" y2="0%" />
           <Wall className="bottom" x1="0%" x2="100%" y1="100%" y2="100%" />
           <Score frame={frame} className="left">{score[0]}</Score>
           <Score frame={frame} className="right">{score[1]}</Score>
+          { !!timer && <text className="pongTimer" x="43%" y="60%" font-size="400" fill="white">{Math.round(timer)}</text>}
          </svg>
        </Fragment>
     );
@@ -57,7 +61,7 @@ class Pong extends Component {
 
     newScore[i] += 1;
 
-    const stopped = newScore[i] > 8;
+    const stopped = newScore[i] > 9;
 
     this.setState({
       score: newScore,
@@ -79,7 +83,7 @@ class Pong extends Component {
   }
 
   start (init = false) {
-    const { stopped } = this.state;
+    const { stopped, timer } = this.state;
 
     if (stopped && !init)
       return;
@@ -91,14 +95,20 @@ class Pong extends Component {
     }
 
     requestAnimationFrame((timestamp) => {
-      newState.frame = timestamp;
+      const tsSec = (timestamp / 1000);
+
+      if (timer) {
+        newState.timer = Math.max(START_DELAY - tsSec, 0);
+      } else {
+        newState.frame = timestamp;
+      }
       this.setState(newState);
     });
   }
 
   stop () {
     this.setState({
-      stopped: true
+      stopped: true,
     })
   }
 }
