@@ -31,7 +31,7 @@ class Pong extends Component {
       <Fragment>
         <div className={"overlay " + (overlayVisible ? 'isVisible' : '')}>
 
-        <p>Bien Jouer</p>
+        <p>Bien Joué</p>
         <p>{score[0]}/{score[1]}</p>
         <div className="buttonWrapper">
           <button onClick={this.retry}>Rejouer</button>
@@ -62,31 +62,35 @@ class Pong extends Component {
     newScore[i] += 1;
 
     const stopped = newScore[i] > 9;
+    const newState =  {
 
-    this.setState({
       score: newScore,
       stopped
-    })
+    }
 
     if (stopped) {
-      this.setState({ overlayVisible: true, stopped: true, frame: null});
+      newState.overlayVisible = true;
+      newState.frame = null;
     }
+
+    this.setState(newState);
 
     return stopped;
   }
   retry = () => {
-    this.setState({score: [0, 0]})
+    this.setState({ score: [0, 0] })
     this.setState({ overlayVisible: false });
+    this.setState({ timer: START_DELAY});
 
     this.start(true);
 
   }
-
   start (init = false) {
     const { stopped, timer } = this.state;
 
-    if (stopped && !init)
+    if (stopped && !init){
       return;
+    }
 
     const newState = {}
 

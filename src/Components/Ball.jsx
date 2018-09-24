@@ -49,7 +49,8 @@ class Ball extends Component {
   }
 
   moveBall () {
-    if (!document.getElementById("ball")) {
+    const { stopped } = this.state;
+    if (!document.getElementById("ball") || stopped) {
       return;
     }
 
@@ -184,13 +185,11 @@ class Ball extends Component {
     const pointLeft = document.getElementById("leftScore")
 
     if (fieldRect.left > ballRect.right) { //gauche
-      if (!this.props.onPoint(1)) {
-        this.start();
-      }
+      this.props.onPoint(1);
+      this.start();
     } else if (fieldRect.right < ballRect.left) { //droite
-      if (!this.props.onPoint(0)) {
-        this.start();
-      }
+      this.props.onPoint(0);
+      this.start();
     }
 
   }
